@@ -15,8 +15,8 @@ kubeflow-demo/
 │   └── requirements.txt     # Requirements for Docker container
 ├── Dockerfile               # Shared Dockerfile for all components
 ├── pipeline.py              # KFP pipeline definition
-├── compile.py               # Compiles the pipeline to YAML
-├── upload\_pipeline.py       # Uploads pipeline to KFP
+├── compile.yaml             # Compiles the pipeline to YAML
+├── upload\_pipeline.py      # Uploads pipeline to KFP
 └── README.md
 
 ````
@@ -104,6 +104,52 @@ joblib
 ```text
 kfp==2.13.0
 ```
+
+
+**KFP v2-style `@container_component`-based pipeline**.
+
+
+### 📦 Pipeline Definition (Updated for KFP v2)
+
+We now use `@container_component` to define modular steps:
+
+```python
+from kfp.dsl import container_component, Input, Output, Artifact
+
+@container_component
+def preprocess_op(output_data: Output[Artifact]):
+    return dsl.ContainerSpec(
+        image='dhirajpatra/kfp-components:latest',
+        command=['python', 'preprocess.py'],
+        args=[output_data.path],
+        output_artifacts={'output_data': output_data}
+    )
+
+@container_component
+def train_op(input_data: Input[Artifact]):
+    return dsl.ContainerSpec(
+        image='dhirajpatra/kfp-components:latest',
+        command=['python', 'train.py'],
+        args=[input_data.path],
+        input_artifacts={'input_data': input_data}
+    )
+
+@pipeline(name='iris-classifier-pipeline')
+def iris_pipeline():
+    preprocess = preprocess_op()
+    train = train_op(input_data=preprocess.outputs['output_data'])
+```
+
+---
+
+### 🆕 Why This Change?
+
+| Benefit                            | Description                      |
+| ---------------------------------- | -------------------------------- |
+| ✅ KFP v2-compatible                | Uses strongly typed input/output |
+| 🔄 Modular & Reusable              | Components act like functions    |
+| ⚠️ Avoids deprecated `ContainerOp` | Cleaner, future-proof pipelines  |
+
 
 ---
 
