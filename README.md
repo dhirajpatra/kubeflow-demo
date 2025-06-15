@@ -2,6 +2,7 @@
 
 This project demonstrates how to build an end-to-end ML pipeline using **Kubeflow Pipelines (KFP v2)** with Dockerized components.
 
+![Kubeflow Dockerhub](./kubeflow.png)
 ---
 
 ## 📁 Project Structure
