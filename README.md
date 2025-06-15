@@ -15,7 +15,7 @@ kubeflow-demo/
 │   └── requirements.txt     # Requirements for Docker container
 ├── Dockerfile               # Shared Dockerfile for all components
 ├── pipeline.py              # KFP pipeline definition
-├── compile.yaml             # Compiles the pipeline to YAML
+├── compile.py               # Compiles the pipeline to YAML
 ├── upload\_pipeline.py      # Uploads pipeline to KFP
 └── README.md
 
@@ -150,6 +150,86 @@ def iris_pipeline():
 | 🔄 Modular & Reusable              | Components act like functions    |
 | ⚠️ Avoids deprecated `ContainerOp` | Cleaner, future-proof pipelines  |
 
+
+---
+
+### ✅ Step-by-Step Local Run (Minikube + KFP + Docker)
+
+---
+
+#### **1. Start Minikube with Docker driver**
+
+```bash
+minikube start --driver=docker
+```
+
+---
+
+#### **2. Enable Kubeflow Pipelines Add-on**
+
+```bash
+minikube addons enable kubeflow-pipelines
+```
+
+---
+
+#### **3. Point Docker to Minikube’s daemon**
+
+```bash
+eval $(minikube docker-env)
+```
+
+> This ensures `docker build` pushes to the Minikube-internal registry.
+
+---
+
+#### **4. Build your component image**
+
+From the root of your project:
+
+```bash
+docker build -t dhirajpatra/kfp-components:latest .
+```
+
+---
+
+#### **5. Compile your pipeline**
+
+```bash
+python compile.py
+```
+
+> Make sure `compile.py` generates `kfp_pipeline.yaml`.
+
+---
+
+#### **6. Access Kubeflow Dashboard**
+
+```bash
+minikube service kubeflow-pipelines-dashboard -n kubeflow
+```
+
+> It will open the dashboard URL in your browser.
+
+---
+
+#### **7. Upload pipeline**
+
+Use your `upload_pipeline.py` script:
+
+```bash
+python upload_pipeline.py
+```
+
+Or manually upload `kfp_pipeline.yaml` via dashboard.
+
+---
+
+#### **8. Run the pipeline from UI**
+
+* Go to **Pipelines** → **iris-classifier-pipeline**
+* Click **Create run**
+* Use default values and hit **Start**
 
 ---
 
